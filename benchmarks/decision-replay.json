@@ -1,0 +1,11 @@
+{
+  "seed": 42,
+  "synthetic": true,
+  "decisionCount": 20,
+  "cumulativeRegret": 132.97723916188787,
+  "luckFavored": 0,
+  "luckHurt": 3,
+  "selectedFills": 0,
+  "bestActionCounts": { "PASS": 19, "TIGHT": 1 },
+  "interpretation": "Ex-post diagnostic regret under a predefined feasible action set; not achievable foresight."
+}

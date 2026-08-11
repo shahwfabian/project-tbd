@@ -1,0 +1,15 @@
+# Experiment protocol
+
+Preregister the hypothesis, scenario, parameters and seed before viewing results. Preserve the decision-time information set, action, book state, inventory, model assumptions and later markout. Compare strategies on identical seeded event streams. Report costs, fills, drawdown, inventory, Greeks, regret and uncertainty; do not annualize short intraday Sharpe ratios without a clear caveat.
+
+Current benchmark evidence: 100 seeds × 3 fixed spreads, plus 0.50-spread delta-hedged and Bayesian adverse-aware comparisons, with all accounting reconciled. Delta hedging reduces mean maximum residual delta from 458.26 to 0.49 and improves the worst seed from -$24,956.34 to -$15,475.71, at a mean hedge-fee cost of $25.26. Adding adverse-aware quote widening reduces the worst seed further to -$6,149.14 while lowering mean net P&L to $879.18. The baseline remains synthetic and uncalibrated; these results are risk/cost diagnostics, not profitability claims.
+
+Decision replay stores the information set before the action separately from the realized flow and subsequent mark. Counterfactual regret is ex-post diagnostic regret over a predefined feasible action set; it is not achievable foresight. Utility includes execution fees and a quadratic inventory penalty.
+
+The stress suite reuses identical seed IDs across five declared environments: base, doubled volatility, lower flow-intensity parameter, two-tick venue latency, and four-times contract fees. It reports the mean, median, fifth-percentile, worst seed, negative-seed rate, and a deterministic bootstrap interval for the mean. Bootstrap resampling is a sensitivity diagnostic because the seeded paths are not independent market observations; it must not be presented as a live-performance confidence interval.
+
+The untouched-selection protocol partitions seeds 1–100 into train (1–60), validation (61–80), and final test (81–100). It selects among three fixed policies using only the train score `mean net P&L + 0.25 × P05 net P&L`; validation and final results are evaluated after selection and are never read by the selector. The stored run selected the hedged + adverse-aware policy and reconciled on both untouched splits.
+
+This split is a practical guard against model-selection leakage, not a substitute for formal data-snooping inference. The next statistical extension should compare the full candidate family with a multiple-testing procedure such as White’s Reality Check ([White, 2000](https://onlinelibrary.wiley.com/doi/abs/10.1111/1468-0262.00152)) or Hansen’s Superior Predictive Ability test ([Hansen, 2005](https://doi.org/10.1198/073500105000000063)).
+
+The current `/inference` implementation is a compact centered max-mean bootstrap over the three declared policies: 100 common seeds, 2,000 deterministic resamples, observed maximum mean net P&L of $1,497.76, and family-wide p = 0.0415. This is deliberately labeled a synthetic data-snooping diagnostic; it does not establish live alpha, realistic dependence, or historical performance.
