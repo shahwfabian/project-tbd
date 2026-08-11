@@ -4,9 +4,9 @@ import { useState } from "react";
 
 type Result={name:string;short:string;meanNetPnl:number;worstNetPnl:number;meanFillRate:number;meanMaxAbsDelta:number;meanMaxAbsInventory:number;meanFees:number;meanHedgeFees?:number;meanQuotedSpread?:number;claim:string};
 const results:Result[]=[
- {name:"Unhedged baseline",short:"BASE",meanNetPnl:1497.76,worstNetPnl:-24956.34,meanFillRate:.1157,meanMaxAbsDelta:458.26,meanMaxAbsInventory:6.41,meanFees:6.95,claim:"Highest mean P&L, but inventory dominates tail risk."},
- {name:"Delta-hedged",short:"HEDGED",meanNetPnl:1239.50,worstNetPnl:-15475.71,meanFillRate:.1157,meanMaxAbsDelta:.49,meanMaxAbsInventory:6.41,meanFees:6.95,meanHedgeFees:25.26,claim:"Nearly eliminates residual delta at a measurable hedge-fee cost."},
- {name:"Hedged + adverse-aware",short:"AWARE",meanNetPnl:879.18,worstNetPnl:-6149.14,meanFillRate:.0428,meanMaxAbsDelta:.49,meanMaxAbsInventory:3.06,meanFees:2.57,meanHedgeFees:11.07,meanQuotedSpread:1.1363,claim:"Best tail outcome in this synthetic panel; lower fills and mean P&L are the price."}
+ {name:"Unhedged baseline",short:"BASE",meanNetPnl:1650.61,worstNetPnl:-21053.45,meanFillRate:.1157,meanMaxAbsDelta:458.26,meanMaxAbsInventory:6.41,meanFees:6.95,claim:"Highest mean P&L, but inventory dominates tail risk."},
+ {name:"Delta-hedged",short:"HEDGED",meanNetPnl:1392.34,worstNetPnl:-1940.12,meanFillRate:.1157,meanMaxAbsDelta:.49,meanMaxAbsInventory:6.41,meanFees:6.95,meanHedgeFees:25.26,claim:"Cuts residual delta and materially compresses the simulated tail at a measurable hedge-fee cost."},
+ {name:"Hedged + adverse-aware",short:"AWARE",meanNetPnl:643.88,worstNetPnl:-734.55,meanFillRate:.0428,meanMaxAbsDelta:.49,meanMaxAbsInventory:3.06,meanFees:2.57,meanHedgeFees:11.07,meanQuotedSpread:1.1363,claim:"Best tail outcome in this synthetic panel; lower fills and mean P&L are the price."}
 ];
 const money=(n:number)=>`${n<0?"-":""}$${Math.abs(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}`;
 const pct=(n:number)=>`${(n*100).toFixed(1)}%`;
