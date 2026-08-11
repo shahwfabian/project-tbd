@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generatedAt": "2026-08-11T20:56:50.452Z",
-  "codeCommit": "6866d6fb12326800a3ae4bf7b4baec0c5d977732",
+  "codeCommit": "2b02274bd2c5f0a16a2fa1581cc3815cd40679fc",
   "branch": "codex/research-rebuild-v2",
   "syntheticOnly": true,
   "hypothesis": "Inventory- and toxicity-aware option quotes improve paired terminal P&L and reduce Greek exposure relative to a symmetric unhedged benchmark under the declared synthetic scenario family.",
