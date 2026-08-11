@@ -2,9 +2,9 @@ name: Project TBD CI
 
 on:
   push:
-    branches: [main, "agent/**"]
+    branches: [main, "agent/**", "codex/**"]
   pull_request:
-    branches: [main]
+    branches: [main, "agent/**"]
 
 jobs:
   verify:
