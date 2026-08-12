@@ -1,18 +1,52 @@
-"use client";
 import Link from "next/link";
-import {useMemo,useState} from "react";
-import {bs,gbmPath,martingaleDiagnostic,monteCarlo,type Inputs} from "../lib/quant";
 
-const initial:Inputs={spot:100,strike:100,maturity:30/365,vol:.22,rate:.05,dividend:0,paths:10000,seed:42};
-const nav=[["Paper Trading Arena","/arena"],["Pricing Laboratory","/"],["Strategy Laboratory","/strategy"],["Stress Laboratory","/stress"],["Untouched Validation","/validation"],["Multiple-Testing Audit","/inference"],["Decision Autopsy","/autopsy"],["Strategy Tribunal","/tribunal"],["Methodology","/methodology"],["Explain It Simply","/learn"]] as const;
-const money=(n:number)=>`$${n.toFixed(2)}`;
-const limits:Record<string,[number,number]>={spot:[.01,100000],strike:[.01,100000],maturity:[1,3650],vol:[.01,500],rate:[-100,100],paths:[100,100000],seed:[1,2147483647]};
-export default function Home(){
- const [inputs,setInputs]=useState(initial); const [measure,setMeasure]=useState<"P"|"Q">("Q"); const [error,setError]=useState("");
- const price=useMemo(()=>bs(inputs),[inputs]); const mc=useMemo(()=>monteCarlo(inputs),[inputs]); const path=useMemo(()=>gbmPath(inputs,measure),[inputs,measure]); const diagnostic=useMemo(()=>martingaleDiagnostic(inputs),[inputs]);
- const update=(key:keyof Inputs,raw:number)=>{const actual=key==="maturity"?raw/365:key==="vol"||key==="rate"?raw/100:raw;const [lo,hi]=limits[key]??[-Infinity,Infinity];const check=key==="maturity"?raw:key==="vol"||key==="rate"?raw:actual;if(!Number.isFinite(actual)||check<lo||check>hi||(key==="paths"||key==="seed")&&!Number.isInteger(actual)){setError(`${key} must be a valid value between ${lo} and ${hi}. Your last valid experiment was kept.`);return;}setError("");setInputs(x=>({...x,[key]:actual}));};
- return <main><aside><div className="brand"><div className="mark">∑</div><div><strong>PROJECT TBD</strong><small>QUANT LAB / 0.1</small></div></div><nav>{nav.map(([label,href],i)=><Link key={label} href={href} className={href==="/"?"nav-link nav-current":"nav-link"}><span className="nav-index">{String(i+1).padStart(2,"0")}</span>{label}{href==="/arena"&&<b className="live-dot"/>}</Link>)}</nav><div className="sidebar-bottom"><div className="status"><span className="dot"/>ENGINE ONLINE</div><p>Educational simulator<br/>Synthetic data only</p><div className="seed">SEED <b>{inputs.seed}</b></div></div></aside><section className="workspace"><header><div><p className="eyebrow">RESEARCH BRIEFING / REPRODUCIBLE OPTIONS LAB</p><h1>Pricing Laboratory</h1></div><div className="header-actions"><span className="chip"><span className="dot"/>SYNTHETIC</span><div className="avatar">QT</div></div></header><div className="tribunal-hero panel"><div><p className="eyebrow">THE QUESTION</p><h2>When does a trading decision stay rational after risk, costs, and uncertainty?</h2><p>Explore the math here, then trade with pretend money in the Paper Trading Arena. Every result is synthetic and explainable.</p><Link href="/arena" className="primary">Enter the demo arena →</Link></div><div className="verdict-score"><strong>Q / P</strong><span>two probability lenses</span></div></div><div className="toolbar"><div className="toolbar-title"><span className="signal"/>BENCHMARK CONFIGURATION</div><button className="run" onClick={()=>update("seed",inputs.seed+1)}>↻ Re-run seeded experiment</button></div>{error&&<div className="validation-error" role="alert">⚠ {error}</div>}<div className="lab-grid"><section className="panel config"><div className="panel-head"><span>01 / PARAMETERS</span><em>GBM + EUROPEAN CALL</em></div><div className="fields"><Field label="Spot S0" value={inputs.spot} onChange={n=>update("spot",n)} min="0.01" suffix="$"/><Field label="Strike K" value={inputs.strike} onChange={n=>update("strike",n)} min="0.01" suffix="$"/><Field label="Maturity T" value={inputs.maturity*365} onChange={n=>update("maturity",n)} min="1" max="3650" suffix="DAYS"/><Field label="Volatility" value={inputs.vol*100} onChange={n=>update("vol",n)} min="0.01" max="500" step="0.01" suffix="%"/><Field label="Rate r" value={inputs.rate*100} onChange={n=>update("rate",n)} min="-100" max="100" step="0.01" suffix="%"/><Field label="Paths M" value={inputs.paths} onChange={n=>update("paths",n)} min="100" max="100000" step="100"/><Field label="Seed" value={inputs.seed} onChange={n=>update("seed",n)} min="1" step="1"/></div><div className="measure"><span>Measure</span><button className={measure==="P"?"selected":""} onClick={()=>setMeasure("P")}>P · physical</button><button className={measure==="Q"?"selected":""} onClick={()=>setMeasure("Q")}>Q · risk-neutral</button></div><p className="helper">P is a possible real-world story. Q is the no-arbitrage pricing lens used for the option benchmark.</p></section><section className="panel chart-panel"><div className="panel-head"><span>02 / PATH GENERATION</span><em>{measure} MEASURE · SEEDED</em></div><div className="chart-title"><div><strong>Simulated spot path</strong><small>Exact GBM discretization · {path.length-1} steps</small></div></div><Spark data={path} label={`${measure} measure simulated spot path`}/><div className="chart-foot"><span>S0 {money(inputs.spot)}</span><span>T {inputs.maturity.toFixed(3)} yr</span><span>terminal {money(path.at(-1)??0)}</span></div></section></div><div className="metrics"><Metric label="BLACK-SCHOLES CALL" value={money(price.call)} sub="analytic benchmark"/><Metric label="MONTE CARLO ESTIMATE" value={money(mc.price)} sub={`95% CI ${money(mc.low)} — ${money(mc.high)}`} tone="teal"/><Metric label="SAMPLING ERROR" value={money(mc.se)} sub={`${mc.paths.toLocaleString()} paired paths`} tone="gold"/><Metric label="PARITY RESIDUAL" value={money(price.call-price.put-inputs.spot*Math.exp(-inputs.dividend*inputs.maturity)+inputs.strike*Math.exp(-inputs.rate*inputs.maturity))} sub="call - put - discounted spot + discounted strike" tone="teal"/></div><div className="lower-grid"><section className="panel"><div className="panel-head"><span>03 / GREEKS</span><em>LOCAL SENSITIVITIES</em></div><div className="greeks">{[["DELTA",price.delta],["GAMMA",price.gamma],["VEGA",price.vega],["THETA",price.theta],["RHO",price.rho]].map(([label,value])=><div key={label as string}><span>{label}</span><b>{Number(value).toFixed(4)}</b></div>)}</div><div className="equation">C = S exp(-qT) N(d1) - K exp(-rT) N(d2)</div><p className="helper">The option value is {price.call>=mc.low&&price.call<=mc.high?<span className="ok">inside</span>:<span className="warn">outside</span>} the reported 95% interval.</p></section><section className="panel"><div className="panel-head"><span>04 / MARTINGALE CHECK</span><em>DISCOUNTED UNDERLYING</em></div><div className="diagnostic"><div className="diag-ring"><span>{Math.abs(diagnostic.error/diagnostic.expected*100).toFixed(1)}%</span><small>error</small></div><div><strong>Q diagnostic</strong><p>Expected {money(diagnostic.expected)}</p><p>Observed {money(diagnostic.observed)}</p><span className="ok">● reproducible · seed {inputs.seed}</span></div></div><div className="formula">discounted expected stock value stays near today’s value</div></section></div><div className="footnote"><span>ENGINE · JavaScript reference implementation</span><span>STATUS · <b className="ok">VALIDATED</b></span><span><Link href="/learn" className="nav-link-inline">LEARN THE TERMS →</Link></span></div></section></main>;
+import artifact from "../benchmarks/research-v2.json";
+import { LabShell, Metric } from "../components/LabShell";
+
+const money = (value: number) => `${value < 0 ? "−" : ""}$${Math.abs(value).toFixed(2)}`;
+const percent = (value: number) => `${(value * 100).toFixed(1)}%`;
+
+export default function OverviewPage() {
+  const adaptive = artifact.final.summaries.find(summary => summary.policy === "INVENTORY_TOXICITY_AWARE")!;
+  const baseline = artifact.final.summaries.find(summary => summary.policy === "BASELINE")!;
+  const comparison = artifact.final.adaptiveVsBaseline;
+  return <LabShell activePath="/" eyebrow="SYNTHETIC OPTIONS MARKET MAKING / RESEARCH PROTOCOL V2" title="Research Overview" status="EVIDENCE GENERATED">
+    <section className="research-hero panel">
+      <div>
+        <p className="eyebrow">RESEARCH QUESTION</p>
+        <h2>How should an option market maker quote when inventory risk and informed flow arrive together?</h2>
+        <p>The engine prices a European call under Q, evolves the trading environment under P, executes option flow against delayed quotes, and routes delta hedges through a frictional underlying venue.</p>
+        <p><strong>Filtration is the governing constraint:</strong> every action is measurable with respect to 𝓕ₜ, the information available before the next state is revealed.</p>
+        <div className="hero-actions">
+          <Link href="/arena" className="primary">Enter the Trading Arena</Link>
+          <Link href="/methodology" className="secondary">Inspect the protocol</Link>
+        </div>
+      </div>
+      <div className="protocol-stamp">
+        <span>FINAL MANIFEST</span>
+        <strong>{artifact.seedManifest.final.length}</strong>
+        <small>untouched seeds</small>
+        <code>{artifact.seedManifest.hash.slice(0, 12)}</code>
+      </div>
+    </section>
+    <div className="metrics">
+      <Metric label="PAIRED P&L DIFFERENCE" value={money(comparison.observedMeanDifference)} sub={`95% CI ${money(comparison.confidenceInterval[0])} to ${money(comparison.confidenceInterval[1])}`} tone="teal" />
+      <Metric label="IMPROVEMENT FREQUENCY" value={percent(comparison.probabilityOfImprovement)} sub="adaptive beat baseline per seed" />
+      <Metric label="BASELINE NEGATIVE SEEDS" value={percent(baseline.negativeSeedRate)} sub={`${baseline.seeds} untouched scenarios`} tone="gold" />
+      <Metric label="ADAPTIVE MAX DELTA" value={adaptive.meanMaxAbsDelta.toFixed(1)} sub="shares, with hedge friction" />
+    </div>
+    <section className="panel architecture-panel">
+      <div className="panel-head"><span>EXPERIMENT ARCHITECTURE</span><em>ONE COHERENT STATE SYSTEM</em></div>
+      <div className="architecture-flow">
+        {["Underlying S(t)", "Option value + Greeks", "Reservation price", "Delayed option fill", "Frictional hedge", "Terminal liquidation"].map((label, index) => <div key={label}><span>{String(index + 1).padStart(2, "0")}</span><strong>{label}</strong></div>)}
+      </div>
+    </section>
+    <section className="research-grid">
+      <article className="panel research-card"><span>MODEL</span><h3>Separate instruments</h3><p>The option is quoted around its theoretical value. The underlying exists only as the state driver and hedge instrument.</p></article>
+      <article className="panel research-card"><span>FLOW</span><h3>Measurable adverse selection</h3><p>Latent informed direction predicts the subsequent spot move. Every policy receives the same scenario.</p></article>
+      <article className="panel research-card"><span>INFERENCE</span><h3>Paired evidence</h3><p>Policy differences retain common seed indices during resampling. The declared benchmark remains visible.</p></article>
+      <article className="panel research-card"><span>SCOPE</span><h3>Synthetic by construction</h3><p>The results evaluate mechanisms inside the declared simulator. They do not establish market profitability.</p></article>
+    </section>
+    <p className="footnote"><span>AUTHOR · SHAH WASIF FABIAN</span><span>CONFIG · {artifact.configHash.slice(0, 12)}</span><span>ALL RUNS · <b className="ok">RECONCILED</b></span></p>
+  </LabShell>;
 }
-function Field({label,value,onChange,step="any",suffix,min,max}:{label:string;value:number;onChange:(n:number)=>void;step?:string;suffix?:string;min?:string;max?:string}){return <label className="field"><span>{label}</span><div className="input-wrap"><input aria-label={label} type="number" value={value} step={step} min={min} max={max} onChange={e=>onChange(Number(e.target.value))}/>{suffix&&<i>{suffix}</i>}</div></label>}
-function Spark({data,label}:{data:number[];label:string}){const min=Math.min(...data),max=Math.max(...data),range=max-min||1;const points=data.map((v,i)=>`${(i/(data.length-1))*100},${96-((v-min)/range)*82}`).join(" ");return <div className="spark-wrap"><svg viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label={label}><polyline points={points} fill="none" stroke="#65d6bd" strokeWidth="1.8" vectorEffect="non-scaling-stroke"/></svg><div className="spark-label"><span>{money(min)}</span><span>{money(max)}</span></div></div>}
-function Metric({label,value,sub,tone=""}:{label:string;value:string;sub:string;tone?:string}){return <div className={`metric ${tone}`}><span>{label}</span><strong>{value}</strong><small>{sub}</small></div>}

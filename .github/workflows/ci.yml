@@ -1,10 +1,10 @@
-name: Project TBD CI
+name: Filtration CI
 
 on:
   push:
-    branches: [main, "agent/**"]
+    branches: [main, "agent/**", "codex/**"]
   pull_request:
-    branches: [main]
+    branches: [main, "agent/**"]
 
 jobs:
   verify:

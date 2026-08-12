@@ -1,15 +1,12 @@
-"use client";
-import Link from "next/link";
-import {useState} from "react";
-type Stress={name:string;description:string;mean:number;ci:[number,number];p05:number;worst:number;negative:number;fill:number;delta:number;settings:string};
-const cases:Stress[]=[
- {name:"BASE",description:"Reference synthetic regime",mean:643.88,ci:[507.35,789.16],p05:-347.80,worst:-734.55,negative:.15,fill:.0428,delta:.4882,settings:"σ 20% · flow λ 3.0 · latency 1 · fee $0.25"},
- {name:"HIGH VOL",description:"Volatility doubled",mean:606.82,ci:[468.91,734.20],p05:-267.98,worst:-659.16,negative:.15,fill:.0430,delta:.4863,settings:"σ 40% · flow λ 3.0 · latency 1 · fee $0.25"},
- {name:"THIN FLOW",description:"Arrival intensity reduced; more fills",mean:2768.31,ci:[2509.92,3034.30],p05:986.63,worst:-1764.91,negative:.03,fill:.1916,delta:.4940,settings:"σ 20% · flow λ 1.5 · latency 1 · fee $0.25"},
- {name:"SLOW VENUE",description:"Two-tick order latency",mean:602.80,ci:[419.52,798.47],p05:-441.46,worst:-2295.96,negative:.24,fill:.0428,delta:.4838,settings:"σ 20% · flow λ 3.0 · latency 2 · fee $0.25"},
- {name:"EXPENSIVE FEES",description:"Four-times contract fee",mean:636.17,ci:[484.05,766.60],p05:-348.59,worst:-738.30,negative:.15,fill:.0428,delta:.4882,settings:"σ 20% · flow λ 3.0 · latency 1 · fee $1.00"},
- {name:"PERSISTENT TOXIC FLOW",description:"Persistent one-sided informed-flow regime",mean:620.65,ci:[459.98,801.78],p05:-296.16,worst:-745.29,negative:.15,fill:.0256,delta:.4932,settings:"σ 20% · flow λ 3.0 · persistence 85% · buy bias 35%"}
-];
-const money=(n:number)=>`${n<0?"-":""}$${Math.abs(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}`; const pct=(n:number)=>`${(n*100).toFixed(1)}%`;
-export default function StressPage(){const[i,setI]=useState(0);const s=cases[i];return <main><aside><div className="brand"><div className="mark">∑</div><div><strong>PROJECT TBD</strong><small>QUANT LAB / 0.1</small></div></div><nav><Link href="/" className="nav-link">← Pricing Laboratory</Link><Link href="/strategy" className="nav-link">02 / Strategy Laboratory</Link><div className="nav-current">06 / STRESS LABORATORY</div><Link href="/validation" className="nav-link">07 / Untouched Validation</Link></nav><div className="sidebar-bottom"><div className="status"><span className="dot"/>STRESS ENGINE ONLINE</div><p>100 common seeds<br/>Synthetic data only</p></div></aside><section className="workspace"><header><div><p className="eyebrow">SENSITIVITY / 100 COMMON SEEDS / HEDGED + AWARE</p><h1>Stress Laboratory</h1></div><div className="header-actions"><span className="chip"><span className="dot"/>SCENARIO TEST</span><div className="avatar">QT</div></div></header><div className="tribunal-hero panel"><div><p className="eyebrow">SELECTED ENVIRONMENT · {s.name}</p><h2>{s.description}</h2><p>{s.settings}. The corrected option-fair-value policy and seed IDs stay fixed while one environment assumption changes.</p></div><div className="verdict-score"><strong>{money(s.worst)}</strong><span>selected worst seed</span></div></div><section className="panel strategy-table"><div className="panel-head"><span>DECLARED STRESS CASES</span><em>IDENTICAL SEEDS · RECONCILED</em></div>{cases.map((x,n)=><button key={x.name} className={n===i?"strategy-row selected":"strategy-row"} onClick={()=>setI(n)}><span><b>{x.name}</b><small>{x.description}</small></span><strong>{money(x.mean)}<small>{money(x.ci[0])} … {money(x.ci[1])}</small></strong><strong className="negative">{money(x.p05)}</strong><span>{pct(x.negative)}</span><strong className="negative">{money(x.worst)}</strong></button>)}</section><div className="metrics"><Metric label="MEAN NET P&L" value={money(s.mean)} sub="synthetic policy result" tone="teal"/><Metric label="95% RESAMPLE RANGE" value={money(s.ci[0])} sub={money(s.ci[1])} tone="gold"/><Metric label="NEGATIVE-SEED RATE" value={pct(s.negative)} sub="of 100 common seeds"/><Metric label="MEAN RESIDUAL Δ" value={s.delta.toFixed(4)} sub={`fill rate ${pct(s.fill)}`} tone="teal"/></div><p className="footnote"><span>BENCHMARK · stress-suite.json</span><span>STATUS · <b className="ok">RECONCILED</b></span><span>RESEARCH ARTIFACT · SYNTHETIC</span></p></section></main>}
-function Metric({label,value,sub,tone=""}:{label:string,value:string,sub:string,tone?:string}){return <div className={`metric ${tone}`}><span>{label}</span><strong>{value}</strong><small>{sub}</small></div>}
+import artifact from "../../benchmarks/research-v2.json";
+import { LabShell } from "../../components/LabShell";
+import { StressClient } from "./StressClient";
+
+export default function StressPage() {
+  const cases = artifact.stresses.map(stress => ({
+    name: stress.name,
+    summaries: stress.summaries,
+    changes: Object.entries(stress.config).filter(([key, value]) => value !== artifact.baseConfig[key as keyof typeof artifact.baseConfig]).map(([key, value]) => `${key}=${value}`),
+  }));
+  return <LabShell activePath="/stress" eyebrow="HOSTILE ENVIRONMENTS / IDENTICAL FINAL SEEDS" title="Stress Laboratory" status="FAILURES INCLUDED"><StressClient cases={cases} /></LabShell>;
+}
