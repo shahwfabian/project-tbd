@@ -1,27 +1,64 @@
-# Project TBD
+# Filtration
+
+A reproducible synthetic research environment for European option market making under inventory risk, directional adverse selection, quote latency, queue position, and frictional delta hedging.
+
+The name comes from the filtration \(\{\mathcal{F}_t\}_{t \ge 0}\) in stochastic processes: the information available to a trader through time. Every policy in this laboratory must be measurable with respect to the information available at its decision time.
 
 ## Research question
 
-When does an options market-making decision remain rational after model error, latency, adverse selection, inventory risk, and transaction costs are made explicit?
+How should an option market maker quote when inventory risk and informed customer flow arrive together?
 
-This repository is an educational, reproducible options market-making laboratory. It currently ships Milestone A as an executable browser experience: exact seeded GBM paths under physical/risk-neutral measures, Black–Scholes pricing and Greeks, Monte Carlo confidence intervals, put-call parity, and a discounted-underlying diagnostic. All market data in the interface is synthetic and labeled.
+The experiment compares three policies on common seeded scenarios:
 
-## Run
+1. Symmetric, unhedged quoting.
+2. Symmetric quoting with frictional delta hedging.
+3. Inventory-skewed, directionally toxicity-aware quoting with frictional delta hedging.
+
+## What makes the experiment coherent
+
+- The underlying price and European call are separate instruments.
+- Black-Scholes valuation operates under `Q`; the synthetic trading environment evolves under declared `P` dynamics.
+- A latent informed-flow regime predicts the subsequent state move and is hidden at decision time.
+- Quotes activate after latency and face customer reservation prices, queue-ahead quantity, and finite market-order size.
+- Underlying hedges cross a spread and pay market impact plus fees after hedge latency.
+- Option and underlying inventory are forcibly liquidated at termination.
+- Policy comparisons use common random numbers and paired bootstrap indices.
+- Counterfactual actions face the same latent event; expected utility cannot read realized outcomes.
+- The Evidence Tribunal recomputes content hashes and evidence counts, then fails closed on inconsistencies.
+
+The binding assumptions and release gates are in [`docs/RESEARCH_CONSTITUTION.md`](docs/RESEARCH_CONSTITUTION.md).
+
+## Reproduce
 
 ```bash
 npm install
+npm run research:v2
 npm test
-npm run backtest
-npm run replay
+npm run build
 npm run dev
 ```
 
-Open http://localhost:3000. The workbench includes the Pricing Laboratory plus `/strategy` for measured policy comparisons, `/stress` for declared environment sensitivity, `/validation` for untouched model selection, `/inference` for family-wide data-snooping diagnostics, `/arena` for a latency-aware deterministic fill loop, `/autopsy` for ex-post decision replay, and `/tribunal` for evidence-backed experiment review.
+`npm run research:v2` regenerates [`benchmarks/research-v2.json`](benchmarks/research-v2.json) from 1,000 deterministic scenarios split into 600 train, 200 validation, and 200 final seeds.
 
-## Architecture
+## Held-out synthetic result
 
-`app/page.tsx` is the client workbench and `lib/quant.ts` is the dependency-free reference numerical engine. The engine uses explicit seeded RNG, stable normal CDF approximation, analytic Black–Scholes values, and antithetic terminal samples. The next boundary is a Python/C++ service for event logs and queue-aware matching.
+On the 200 final seeds, the adaptive policy's mean paired net-P&L difference versus the symmetric unhedged benchmark is `$72.91`, with a paired bootstrap 95% interval of `[$48.56, $96.49]`. It beats the benchmark on `65.5%` of individual seeds.
 
-## Honest scope
+This is mechanism evidence inside the declared simulator. It is not a claim of historical alpha or live profitability. The included hostile regimes show material losses under extreme toxicity, wide underlying markets, and volatility crisis conditions. For that reason, the Tribunal currently returns `RESEARCH PASS · DEPLOYMENT BLOCKED`.
 
-No live data, brokerage credentials, live order routing, historical claims, or profitability claims are present. The 100-seed baseline is recorded in `benchmarks/baseline-backtest.json`: the unhedged 0.50-spread run has mean net P&L of $1,497.76 but a worst seed of -$24,956.34; adding delta hedging reduces mean net P&L to $1,239.50 after $25.26 mean hedge fees and improves the worst seed to -$15,475.71 while reducing mean maximum residual delta from 458.26 to 0.49. Adding the Bayesian adverse-aware quote policy further reduces mean net P&L to $879.18 but improves the worst seed to -$6,149.14. A 20-decision replay with seed 42 produces cumulative ex-post regret of $132.98; this is a decision-quality diagnostic, not achievable foresight. That is a synthetic risk/cost tradeoff, not a profitability claim. See `docs/` for the research protocol and limitations.
+## Product workflow
+
+- Research Overview: hypothesis, architecture, held-out evidence.
+- Pricing Laboratory: Black-Scholes, Greeks, antithetic Monte Carlo, P/Q path distinction.
+- Trading Arena: a no-foresight sequential probability game with realized regret.
+- Policy Comparison: artifact-backed final policy panel.
+- Stress Laboratory: declared failure regimes, not only favorable cases.
+- Untouched Validation: frozen 600/200/200 seed manifest.
+- Paired Inference: benchmark-relative family-wide Reality Check.
+- Decision Autopsy: same-event counterfactual replay.
+- Evidence Tribunal: derived findings and deployment gate.
+- Methodology: model card, limits, and reproduction commands.
+
+## Scope
+
+No live data, brokerage credentials, historical performance, live routing, or profitability claim is present. The old V1 artifacts remain in the repository for comparison; the V2 interface reads only the generated `research-v2.json` artifact.
