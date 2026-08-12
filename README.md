@@ -1,8 +1,8 @@
-# Project TBD
+# Filtration
 
 A reproducible synthetic research environment for European option market making under inventory risk, directional adverse selection, quote latency, queue position, and frictional delta hedging.
 
-The name is intentionally temporary. The research model is not.
+The name comes from the filtration \(\{\mathcal{F}_t\}_{t \ge 0}\) in stochastic processes: the information available to a trader through time. Every policy in this laboratory must be measurable with respect to the information available at its decision time.
 
 ## Research question
 

@@ -2,7 +2,7 @@
 
 ## Scope
 
-This review covers the isolated `codex/research-rebuild-v2` branch. It does not replace or mutate the existing production deployment.
+This review covers the Filtration release candidate prepared on `codex/research-rebuild-v2`.
 
 ## Quantitative gates
 

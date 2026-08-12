@@ -3,7 +3,7 @@ import "./globals.css";
 import "./v2.css";
 
 export const metadata: Metadata = {
-  title: { default: "Project TBD | Options Market-Making Research", template: "%s | Project TBD" },
+  title: { default: "Filtration | Options Market-Making Research", template: "%s | Filtration" },
   description: "A reproducible synthetic research environment for option quotation, inventory risk, adverse selection, and frictional delta hedging.",
 };
 

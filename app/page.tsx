@@ -16,6 +16,7 @@ export default function OverviewPage() {
         <p className="eyebrow">RESEARCH QUESTION</p>
         <h2>How should an option market maker quote when inventory risk and informed flow arrive together?</h2>
         <p>The engine prices a European call under Q, evolves the trading environment under P, executes option flow against delayed quotes, and routes delta hedges through a frictional underlying venue.</p>
+        <p><strong>Filtration is the governing constraint:</strong> every action is measurable with respect to 𝓕ₜ, the information available before the next state is revealed.</p>
         <div className="hero-actions">
           <Link href="/arena" className="primary">Enter the Trading Arena</Link>
           <Link href="/methodology" className="secondary">Inspect the protocol</Link>

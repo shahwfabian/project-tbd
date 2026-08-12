@@ -29,9 +29,9 @@ export function LabShell({
 }) {
   return <main className="app-shell">
     <aside>
-      <Link href="/" className="brand" aria-label="Project TBD research overview">
+      <Link href="/" className="brand" aria-label="Filtration research overview">
         <div className="mark">Σ</div>
-        <div><strong>PROJECT TBD</strong><small>RESEARCH BUILD / V2</small></div>
+        <div><strong>FILTRATION</strong><small>𝓕ₜ / RESEARCH LAB</small></div>
       </Link>
       <nav aria-label="Research modules">
         {navigation.map(([index, label, href]) => <Link
@@ -43,7 +43,7 @@ export function LabShell({
       <div className="sidebar-bottom">
         <div className="status"><span className="dot" />RESEARCH ENGINE</div>
         <p>Synthetic experiment<br />No live-performance claim</p>
-        <a href="https://github.com/shahwfabian/project-tbd" target="_blank" rel="noreferrer">SOURCE ↗</a>
+        <a href="https://github.com/shahwfabian/filtration" target="_blank" rel="noreferrer">SOURCE ↗</a>
       </div>
     </aside>
     <section className="workspace">
@@ -62,4 +62,3 @@ export function LabShell({
 export function Metric({ label, value, sub, tone = "" }: { label: string; value: string; sub: string; tone?: string }) {
   return <div className={`metric ${tone}`}><span>{label}</span><strong>{value}</strong><small>{sub}</small></div>;
 }
-

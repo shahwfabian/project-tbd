@@ -1,6 +1,6 @@
-# Project TBD Research Constitution
+# Filtration Research Constitution
 
-Status: binding specification for the `codex/research-rebuild-v2` branch.
+Status: binding specification for the Filtration release.
 
 ## 1. Research question
 
@@ -138,4 +138,3 @@ A release is rejected if any of the following is true:
 - A displayed result is manually duplicated in frontend source.
 - An invalid numeric input causes an uncaught exception.
 - A deployed mathematical symbol is corrupted.
-
